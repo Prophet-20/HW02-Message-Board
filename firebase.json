@@ -1,0 +1,32 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "hw02-vault-bc-261120",
+          "appId": "1:464601020163:android:6f9a52631b6cb49c145b36",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "hw02-vault-bc-261120",
+          "configurations": {
+            "android": "1:464601020163:android:6f9a52631b6cb49c145b36"
+          }
+        }
+      }
+    }
+  },
+  "firestore": {
+    "rules": "firestore.rules"
+  },
+  "emulators": {
+    "firestore": {
+      "port": 8180
+    },
+    "ui": {
+      "enabled": false
+    }
+  }
+}

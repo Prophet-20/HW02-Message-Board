@@ -1,0 +1,16 @@
+{
+  "name": "qa",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "test": "node suite.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^5.0.2",
+    "firebase": "^12.19.0"
+  },
+  "private": true
+}

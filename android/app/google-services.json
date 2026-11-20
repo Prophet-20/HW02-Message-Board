@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "464601020163",
+    "project_id": "hw02-vault-bc-261120",
+    "storage_bucket": "hw02-vault-bc-261120.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:464601020163:android:6f9a52631b6cb49c145b36",
+        "android_client_info": {
+          "package_name": "edu.coursework.vault.message_board"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBnijtMyKf7QPf-kfO0v6hK4RouAl78MBA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
