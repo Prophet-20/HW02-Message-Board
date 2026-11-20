@@ -21,7 +21,7 @@ try {
   await deny('private profile',getDoc(doc(bob,'users/alice')));
   await deny('signed-out read',getDoc(ref(guest)));
   await deny('forged author',setDoc(ref(bob),data()));
-  async function createOnce(){await runTransaction(alice,async t=>{if(!(await t.get(ref(alice))).exists)t.set(ref(alice),data());});}
+  async function createOnce(){await runTransaction(alice,async t=>{if(!(await t.get(ref(alice))).exists())t.set(ref(alice),data());});}
   await Promise.all([createOnce(),createOnce()]);
   const first=(await getDoc(ref(alice))).data();
   await createOnce();

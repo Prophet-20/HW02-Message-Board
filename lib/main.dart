@@ -58,7 +58,7 @@ class _Launch extends State<Launch> {
   Widget build(BuildContext context) => FutureBuilder(
     future: boot,
     builder: (c, s) {
-      if (s.hasError)
+      if (s.hasError) {
         return Scaffold(
           body: Center(
             child: FilledButton(
@@ -67,7 +67,8 @@ class _Launch extends State<Launch> {
             ),
           ),
         );
-      if (s.connectionState != ConnectionState.done)
+      }
+      if (s.connectionState != ConnectionState.done) {
         return const Scaffold(
           backgroundColor: Color(0xff163f35),
           body: Center(
@@ -85,6 +86,7 @@ class _Launch extends State<Launch> {
             ),
           ),
         );
+      }
       return const Gate();
     },
   );
@@ -102,12 +104,14 @@ class _Gate extends State<Gate> {
   Widget build(BuildContext context) => StreamBuilder(
     stream: auth.changes,
     builder: (c, s) {
-      if (s.hasError)
+      if (s.hasError) {
         return const Scaffold(
           body: Center(child: Text('Session unavailable. Reopen the app.')),
         );
-      if (s.connectionState == ConnectionState.waiting)
+      }
+      if (s.connectionState == ConnectionState.waiting) {
         return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      }
       final user = s.data;
       if (user == null) return Access(auth, board);
       return ProfileGate(auth, board, user.uid, key: ValueKey(user.uid));
@@ -130,7 +134,7 @@ class _ProfileGate extends State<ProfileGate> {
   Widget build(BuildContext context) => StreamBuilder(
     stream: profile,
     builder: (c, s) {
-      if (s.hasError)
+      if (s.hasError) {
         return Scaffold(
           body: Center(
             child: TextButton(
@@ -139,10 +143,13 @@ class _ProfileGate extends State<ProfileGate> {
             ),
           ),
         );
-      if (s.connectionState == ConnectionState.waiting)
+      }
+      if (s.connectionState == ConnectionState.waiting) {
         return const Scaffold(body: Center(child: CircularProgressIndicator()));
-      if (s.data == null)
+      }
+      if (s.data == null) {
         return Access(widget.auth, widget.board, uid: widget.uid);
+      }
       return Board(widget.auth, widget.board, widget.uid, s.data!);
     },
   );
@@ -173,15 +180,19 @@ class _Access extends State<Access> {
       keyboardType: name == 'Email' ? TextInputType.emailAddress : null,
       onSaved: (v) => values[name] = password ? v! : v!.trim(),
       validator: (v) {
-        if (v == null || v.trim().isEmpty)
+        if (v == null || v.trim().isEmpty) {
           return 'Enter your ${name.toLowerCase()}.';
+        }
         if (name == 'Email' &&
-            !RegExp(r'^[^ @]+@[^ @]+\.[^ @]+$').hasMatch(v.trim()))
+            !RegExp(r'^[^ @]+@[^ @]+\.[^ @]+$').hasMatch(v.trim())) {
           return 'Enter a valid email address.';
-        if (password && registering && v.length < 6)
+        }
+        if (password && registering && v.length < 6) {
           return 'Use at least six characters.';
-        if (name.endsWith('name') && v.trim().length > 60)
+        }
+        if (name.endsWith('name') && v.trim().length > 60) {
           return 'Use 60 characters or fewer.';
+        }
         return null;
       },
     ),
@@ -328,9 +339,10 @@ class _Board extends State<Board> {
     try {
       await action();
     } catch (e) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text(feedback(e))));
+      }
     } finally {
       if (mounted) setState(() => busy = false);
     }
@@ -423,14 +435,17 @@ class _Board extends State<Board> {
               child: StreamBuilder(
                 stream: posts,
                 builder: (c, s) {
-                  if (s.hasError)
+                  if (s.hasError) {
                     return Center(child: Text(feedback(s.error!)));
-                  if (!s.hasData)
+                  }
+                  if (!s.hasData) {
                     return const Center(child: CircularProgressIndicator());
-                  if (s.data!.isEmpty)
+                  }
+                  if (s.data!.isEmpty) {
                     return const Center(
                       child: Text('No messages yet. Start the conversation.'),
                     );
+                  }
                   return ListView(
                     children: [
                       for (final p in s.data!)
