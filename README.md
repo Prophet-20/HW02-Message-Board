@@ -1,28 +1,33 @@
 # Common Room
-A Flutter message board for CSC 4360 Homework -02, undergraduate track. Any signed-in student can read the board. Owners can edit and delete individual messages.
 
-## Android setup
-Install Flutter, the Android SDK, the Firebase CLI and FlutterFire CLI. Run `flutter doctor` and connect a device. This project includes the generated Android client configuration for the dedicated homework project `hw02-vault-bc-261120`. Its default Cloud Firestore database is in us-east1. Email/Password sign-in is enabled. To use your own project, enable those products, then run the following from the repository root.
+A live message board built with Flutter and Firebase for CSC 4360 Homework 02 (undergraduate track). Sign in to read the board, post a message, or edit and delete your own posts. Other students see changes without refreshing.
+
+## Run on Android
+
+With Flutter and the Android SDK installed, start an emulator or connect a phone. The included Firebase configuration points to the homework project.
 
 ```sh
 flutter pub get
-flutterfire configure --platforms=android --project YOUR_PROJECT_ID
-firebase deploy --only firestore:rules --project YOUR_PROJECT_ID
 flutter run
 ```
 
-## Identity and data
-Initialization starts before the first Flutter frame. The splash stays on screen until initialization finishes. AuthService wraps registration, sign-in, sign-out and the auth-state stream. Authenticated students reach the board after their private profile exists. An interrupted registration offers profile completion on the next sign-in. The service uses a create-if-absent transaction so concurrent recovery preserves the original record.
+To use your own Firebase project, enable Email/Password sign-in and create a Firestore database. With the Firebase and FlutterFire CLIs installed, run these before launching the app:
 
-| Path | Fields and writers | Access |
-|---|---|---|
-| users/{uid} | Auth supplies uid. The registrant supplies firstName and lastName. The app sets role to student. Firestore resolves registrationDateTime on commit. | Only the owner can create or fetch the document. Profiles cannot be listed or changed through the app. |
-| messages/{id} | The author supplies text. BoardService supplies authorUid from the session, authorName from the profile and schemaVersion 2. Firestore resolves createdAt. editedAt starts null and receives server time on each edit. | Signed-in users read the collection. The owner creates, edits text, or deletes one document. Rules protect metadata and check the public name against the private profile. |
-| Device | The composer holds a draft and its submission ID in memory. Firebase Auth manages native session persistence. | Sign-out closes board access. Clearing app data removes local session state. Published messages persist in Firestore. |
+```sh
+flutterfire configure --platforms=android --project YOUR_PROJECT_ID
+firebase deploy --only firestore:rules --project YOUR_PROJECT_ID
+```
 
-BoardService owns all database operations. One ordered snapshots listener drives loading, empty, populated and error states. StreamBuilder releases its listener when the board leaves the widget tree. The app checks ownership before showing actions, and the database independently enforces it. First names are shared on messages. Last names and registration details stay in the private profile.
+## How the board works
 
-## Build and verify
+The splash screen covers startup while Firebase connects. `AuthService` handles registration, sign-in and sign-out. Once a signed-in user has a profile, the app opens the board. `BoardService` reads and writes Firestore data.
+
+- **Profiles** live at `users/{uid}`. Firebase Auth supplies the UID, the student enters their first and last names, the app assigns the student role, and Firestore timestamps registration. Only the owner can read the full profile.
+- **Posts** live at `messages/{id}`. The author writes the text. The app adds the signed-in UID, the first name from the profile and schema version 2. Firestore timestamps each post and edit. Rules let signed-in students read posts and restrict edits and deletes to the author.
+- **On the phone**, drafts stay in memory. The login survives a restart. Clearing app data signs the user out, and their published posts are still there when they sign back in.
+
+## Tests
+
 ```sh
 flutter analyze
 flutter test
@@ -30,16 +35,11 @@ flutter build apk --release
 adb install -r build/app/outputs/flutter-apk/app-release.apk
 ```
 
-The coursework APK uses the Flutter template's local debug signing key in release mode. Do not commit signing material. Test two fictional accounts. Register, verify the five profile fields, sign out and sign back in. Double-tap Post, check the collection count, then post from a second client and watch the first board. Edit and delete one owned message while a neighbor remains. Force-stop, reboot and clear only the test app's data to compare session and cloud lifetimes.
+For a quick check, open the board on two devices with different accounts. Post from one, watch it appear on the other, then edit and delete it as the author.
 
-## Undergraduate choice features
-1. **Rules Unit Tester (#2).** With Node 22+, Java 21+ and the Firebase CLI installed, run the following. The demo project ID and loopback connection keep the suite isolated.
-2. **Idempotent Alchemist (#4).** Each draft retains its document ID on failure. A transaction reads the document before creating it. A repeated call for that ID leaves both the document and original server timestamp intact. The app disables the send button while busy. Transactions require connectivity. A fresh draft after process death is a new intent.
-3. **Schema Shape-shifter (#5).** The suite seeds two legacy documents with body, uid and sentAt, including one missing name. The trusted migration transforms those fields, preserves document IDs, timestamps and an unrelated topic field, and fills missing names with Member. Reruns skip v2. A v3 nested author would require dual-read support until old clients retire.
+The three choice features cover Firestore rules (#2), duplicate posts (#4) and migration (#5). Each draft reuses its document ID on retry. The emulator tests check ownership, send the same draft twice, and upgrade two v1 posts to v2 while preserving their IDs and timestamps. Run them with Node 22+, Java 21+ and the Firebase CLI:
 
 ```sh
 npm --prefix qa ci
 firebase emulators:exec --only firestore --project demo-common-room "npm --prefix qa test"
 ```
-
-The rules suite includes signed-out reads, cross-user edits and deletes, forged authorship, ownership transfer, private profile access, owner CRUD, concurrent replay and migration assertions. The deployed project uses the same rules file. Passwords and test session tokens stay out of the repository.
