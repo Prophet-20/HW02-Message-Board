@@ -43,6 +43,3 @@ firebase emulators:exec --only firestore --project demo-common-room "npm --prefi
 ```
 
 The rules suite includes signed-out reads, cross-user edits and deletes, forged authorship, ownership transfer, private profile access, owner CRUD, concurrent replay and migration assertions. The deployed project uses the same rules file. Passwords and test session tokens stay out of the repository.
-
-## Attribution
-OpenAI Codex assisted with implementation, verification and evidence preparation on November 20, 2026. The student's original session and message predictions are identified separately in the evidence document.
